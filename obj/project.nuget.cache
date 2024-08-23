@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "jTPDh2coIMcaX+TsYBGjCxsKdO1QqKL73BeugYTrykRcsk2MzeEQicd3Kzv0U0Szk3eADWlMvl4/sQL6wThQBQ==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Franco Sistemas\\Desktop\\ManagementHelperCLI\\ManagementHelperCLI.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Franco Sistemas\\.nuget\\packages\\system.commandline\\2.0.0-beta4.22272.1\\system.commandline.2.0.0-beta4.22272.1.nupkg.sha512"
+  ],
+  "logs": []
+}
