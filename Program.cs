@@ -13,7 +13,8 @@ namespace ManagementHelperCLI
             builder.Services.AddHttpClient();
             //builder.Services.AddSingleton<IWeatherService, OpenWeatherMapService>();
             var app = builder.Build();
-            app.AddCommands<HelpCommands>();
+            app.AddCommands<InfoCommands>();
+            app.AddCommands<SysinfoCommands>();
 
             app.Run();
 

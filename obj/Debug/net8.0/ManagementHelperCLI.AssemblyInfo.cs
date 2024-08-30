@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ManagementHelperCLI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b2c84fd9dd89b67370b24d3806b8db0a68692ea4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+871794637062c1ca6fe869425403984f7e4b18a4")]
 [assembly: System.Reflection.AssemblyProductAttribute("ManagementHelperCLI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ManagementHelperCLI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

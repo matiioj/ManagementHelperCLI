@@ -1,38 +1,20 @@
 using System.Management;
 using System.Net.NetworkInformation;
+using System.Diagnostics;
 
 namespace ManagementHelperCLI
 {
-    class DisplaySysInfoService
+    public class DisplaySysInfoService
     {
         public DisplaySysInfoService()
         {
 
         }
 
-        public static void DisplaySyscomp()
-        {
-            Console.WriteLine("Displaying system components...");
-            
-            GetOSInfo();
-
-            // Información de la dirección MAC e IP
-            GetNetworkInfo();
-
-            DisplayHardwareInfo();
-
-            // Información del disco duro
-            GetDiskInfo();
-
-            // Información del monitor
-            GetMonitorInfo();
-
-            // Información de la placa madre
-            GetMotherboardInfo();
-        }
 
 
-        public static void GetOSInfo() 
+
+        public static void GetOSInfo()
         {
             Console.WriteLine("Operating System: " + Environment.OSVersion);
             Console.WriteLine("OS Architecture: " + (Environment.Is64BitOperatingSystem ? "64-bit" : "32-bit"));
@@ -58,33 +40,72 @@ namespace ManagementHelperCLI
             }
         }
 
-        public static void DisplayHardwareInfo()
+        public static void DisplayRamInfo()
         {
-            // Usar GC para obtener información de memoria disponible para la aplicación
-            var totalMemory = GC.GetGCMemoryInfo().TotalAvailableMemoryBytes / (1024 * 1024); // en MB
-            var usedMemory = GC.GetTotalMemory(false) / (1024 * 1024); // en MB
+            var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PhysicalMemory");
 
-            Console.WriteLine($"Memoria RAM Total disponible para la aplicación: {totalMemory} MB");
-            Console.WriteLine($"Memoria RAM usada por la aplicación: {usedMemory} MB");
+            foreach (var obj in searcher.Get())
+            {
+                // Each ManagementObject represents a RAM stick
+                var ram = (ManagementObject)obj;
 
-            // Obtener información del procesador
-            Console.WriteLine($"Procesador: {Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER")}");
+                ulong capacity = (ulong)ram["Capacity"];
+                string capacityInGB = (capacity / (1024 * 1024 * 1024)).ToString() + " GB";
+
+                string manufacturer = ram["Manufacturer"]?.ToString() ?? "Unknown";
+                string partNumber = ram["PartNumber"]?.ToString() ?? "Unknown";
+                ushort memoryTypeCode = (ushort)ram["MemoryType"];
+                string memoryType = GetMemoryType(memoryTypeCode);
+
+                Console.WriteLine($"RAM Capacity: {capacityInGB}");
+                Console.WriteLine($"Manufacturer: {manufacturer}");
+                Console.WriteLine($"Model (Part Number): {partNumber}");
+                Console.WriteLine($"Memory Type: {memoryType}");
+            }
+        }
+
+        public static void DisplayProcessorInfo()
+        {
+            try
+            {
+                var searcher = new ManagementObjectSearcher("select * from Win32_Processor");
+
+                foreach (var item in searcher.Get())
+                {
+                    Console.WriteLine($"Processor Name: {item["Name"]}");
+                    Console.WriteLine($"Manufacturer: {item["Manufacturer"]}");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error retrieving processor information: " + e.Message);
+            }
         }
 
         public static void GetDiskInfo()
         {
             try
             {
-                var searcher = new ManagementObjectSearcher("select * from Win32_DiskDrive");
-                foreach (var item in searcher.Get())
+                var processInfo = new ProcessStartInfo
                 {
-                    Console.WriteLine("Disk Model: " + item["Model"]);
-                    Console.WriteLine("Disk Size: " + FormattingService.FormatBytes((ulong)item["Size"]));
+                    FileName = "powershell.exe",
+                    Arguments = @"
+                    Get-PhysicalDisk | Select-Object DeviceID, Model, @{Name='Size(GB)';Expression={[math]::round($_.Size / 1GB, 2)}}, MediaType",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                using (var process = Process.Start(processInfo))
+                using (var reader = process.StandardOutput)
+                {
+                    string result = reader.ReadToEnd();
+                    Console.WriteLine(result);
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error retrieving disk information: " + e.Message);
+                Console.WriteLine("Error retrieving disk information via PowerShell: " + e.Message);
             }
         }
 
@@ -115,7 +136,6 @@ namespace ManagementHelperCLI
                 {
                     Console.WriteLine("Motherboard Manufacturer: " + item["Manufacturer"]);
                     Console.WriteLine("Motherboard Product: " + item["Product"]);
-                    Console.WriteLine("Motherboard Serial Number: " + item["SerialNumber"]);
                 }
             }
             catch (Exception e)
@@ -123,5 +143,19 @@ namespace ManagementHelperCLI
                 Console.WriteLine("Error retrieving motherboard information: " + e.Message);
             }
         }
+
+        private static string GetMemoryType(ushort memoryTypeCode)
+        {
+            return memoryTypeCode switch
+            {
+                20 => "DDR",
+                21 => "DDR2",
+                24 => "DDR3",
+                26 => "DDR4",
+                // Add other memory types as needed
+                _ => "Unknown"
+            };
+        }
+
     }
 }

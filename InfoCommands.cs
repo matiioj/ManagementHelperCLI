@@ -4,9 +4,9 @@ namespace ManagementHelperCLI
 {
 
 
-    public class HelpCommands
+    public class InfoCommands
     {
-        public HelpCommands()
+        public InfoCommands()
         {
         }
 
