@@ -15,6 +15,7 @@ namespace ManagementHelperCLI
             var app = builder.Build();
             app.AddCommands<InfoCommands>();
             app.AddCommands<SysinfoCommands>();
+            add.AddCommands<OfficeCommands>();
 
             app.Run();
 
